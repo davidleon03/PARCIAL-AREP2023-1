@@ -4,8 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.lang.reflect.InvocationTargetException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,6 +47,12 @@ public class HttpServer2 {
                 System.exit(1);
             } catch (ClassNotFoundException e) {
                 throw new RuntimeException(e);
+            } catch (InvocationTargetException e) {
+                throw new RuntimeException(e);
+            } catch (NoSuchMethodException e) {
+                throw new RuntimeException(e);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
             }
         }
     }
@@ -55,7 +63,7 @@ public class HttpServer2 {
         out.println(outputLine);
     }
 
-    public static void busqueda(String entrada, Socket clientSocket) throws IOException, ClassNotFoundException {
+    public static void busqueda(String entrada, Socket clientSocket) throws IOException, ClassNotFoundException, InvocationTargetException, NoSuchMethodException, IllegalAccessException {
         Service prueba = new Service();
         System.out.println(entrada.substring(0, 2));
         if (entrada.substring(0, 2).equals("Cl")){
@@ -69,6 +77,18 @@ public class HttpServer2 {
             String outputLine;
             PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
             outputLine = "HTTP/1.1 200 OK\r\n" + "Content-Type:  text/html\r\n" + "\r\n" + respuesta;
+            out.println(outputLine);
+        }
+        if (entrada.substring(0, 2).equals("un")){
+            // java.net.URLDecoder.decode(path, StandardCharsets.UTF_8);
+            String part2 = entrada.split(",")[1];
+            System.out.println(part2);
+            String decode = java.net.URLDecoder.decode(part2, StandardCharsets.UTF_8);
+            System.out.println(decode.substring(1, decode.length()-1));
+            String res = prueba.getIV(entrada.split(",")[0].substring(12), decode.substring(1, decode.length()-1));
+            String outputLine;
+            PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
+            outputLine = "HTTP/1.1 200 OK\r\n" + "Content-Type:  text/html\r\n" + "\r\n" + res;
             out.println(outputLine);
         }
     }
